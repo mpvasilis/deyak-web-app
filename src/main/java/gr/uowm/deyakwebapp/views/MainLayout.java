@@ -35,7 +35,6 @@ import com.vaadin.flow.theme.lumo.LumoUtility.Width;
 import gr.uowm.deyakwebapp.data.entity.User;
 import gr.uowm.deyakwebapp.security.AuthenticatedUser;
 import gr.uowm.deyakwebapp.views.dashboard.DashboardView;
-import gr.uowm.deyakwebapp.views.δεδομένα.ΔεδομέναView;
 import java.io.ByteArrayInputStream;
 import java.util.Optional;
 import org.vaadin.lineawesome.LineAwesomeIcon;
@@ -94,7 +93,7 @@ public class MainLayout extends AppLayout {
         Div layout = new Div();
         layout.addClassNames(Display.FLEX, AlignItems.CENTER, Padding.Horizontal.LARGE);
 
-        H1 appName = new H1("Deyak Web App");
+        H1 appName = new H1("Δ.Ε.Υ.Α. Κοζάνης HeatTrack");
         appName.addClassNames(Margin.Vertical.MEDIUM, Margin.End.AUTO, FontSize.LARGE);
         layout.add(appName);
 
@@ -152,9 +151,9 @@ public class MainLayout extends AppLayout {
 
     private MenuItemInfo[] createMenuItems() {
         return new MenuItemInfo[]{ //
-                new MenuItemInfo("Dashboard", LineAwesomeIcon.CHART_AREA_SOLID.create(), DashboardView.class), //
+                new MenuItemInfo("Πίνακας Ελέγχου", LineAwesomeIcon.CHART_AREA_SOLID.create(), DashboardView.class), //
 
-                new MenuItemInfo("Δεδομένα", LineAwesomeIcon.TH_SOLID.create(), ΔεδομέναView.class), //
+                new MenuItemInfo("Αναλυτικά Δεδομένα", LineAwesomeIcon.TH_SOLID.create(), AllDataView.class), //
 
         };
     }

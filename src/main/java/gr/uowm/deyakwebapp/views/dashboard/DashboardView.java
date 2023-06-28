@@ -27,6 +27,7 @@ import com.vaadin.flow.theme.lumo.LumoUtility.FontWeight;
 import com.vaadin.flow.theme.lumo.LumoUtility.Margin;
 import com.vaadin.flow.theme.lumo.LumoUtility.Padding;
 import com.vaadin.flow.theme.lumo.LumoUtility.TextColor;
+import gr.uowm.deyakwebapp.data.service.DataService;
 import gr.uowm.deyakwebapp.views.MainLayout;
 import gr.uowm.deyakwebapp.views.dashboard.ServiceHealth.Status;
 import jakarta.annotation.security.PermitAll;
@@ -36,15 +37,19 @@ import jakarta.annotation.security.PermitAll;
 @RouteAlias(value = "", layout = MainLayout.class)
 @PermitAll
 public class DashboardView extends Main {
+    private final DataService dataService;
 
-    public DashboardView() {
+    public DashboardView(DataService dataService) {
+        this.dataService = dataService;
         addClassName("dashboard-view");
+        long totalDistinctCustomerNumbers = dataService.getTotalDistinctCustomerNumbers();
 
         Board board = new Board();
-        board.addRow(createHighlight("Current users", "745", 33.7), createHighlight("View events", "54.6k", -112.45),
-                createHighlight("Conversion rate", "18%", 3.9), createHighlight("Custom metric", "-123.45", 0.0));
+        board.addRow(createHighlight("Συνολικοί Θερμιδομετρητές", String.valueOf(totalDistinctCustomerNumbers), 33.7),
+                createHighlight("Συνολικά Δεδομένα", String.valueOf(dataService.getTotalDataCount()), -112.45),
+                createHighlight("Μέση t1", "90 °C", 3.9),
+                createHighlight("Μέση t2", "60 °C", 0.0));
         board.addRow(createViewEvents());
-        board.addRow(createServiceHealth(), createResponseTimes());
         add(board);
     }
 
@@ -89,7 +94,7 @@ public class DashboardView extends Main {
         year.setValue("2021");
         year.setWidth("100px");
 
-        HorizontalLayout header = createHeader("View events", "City/month");
+        HorizontalLayout header = createHeader("Καταναλωθεισα ενέργεια", "Δεδομένα ανά μήνα");
         header.add(year);
 
         // Chart
@@ -98,7 +103,7 @@ public class DashboardView extends Main {
         conf.getChart().setStyledMode(true);
 
         XAxis xAxis = new XAxis();
-        xAxis.setCategories("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec");
+        xAxis.setCategories("Ιαν", "Φεβ", "Μαρ", "Απρ", "Μάι", "Ιούν", "Ιούλ", "Αύγ", "Σεπ", "Οκτ", "Νοε", "Δεκ");
         conf.addxAxis(xAxis);
 
         conf.getyAxis().setTitle("Values");
@@ -107,11 +112,7 @@ public class DashboardView extends Main {
         plotOptions.setPointPlacement(PointPlacement.ON);
         plotOptions.setMarker(new Marker(false));
         conf.addPlotOptions(plotOptions);
-
-        conf.addSeries(new ListSeries("Berlin", 189, 191, 291, 396, 501, 403, 609, 712, 729, 942, 1044, 1247));
-        conf.addSeries(new ListSeries("London", 138, 246, 248, 348, 352, 353, 463, 573, 778, 779, 885, 887));
-        conf.addSeries(new ListSeries("New York", 65, 65, 166, 171, 293, 302, 308, 317, 427, 429, 535, 636));
-        conf.addSeries(new ListSeries("Tokyo", 0, 11, 17, 123, 130, 142, 248, 349, 452, 454, 458, 462));
+        conf.addSeries(new ListSeries("Ε1", 189, 191, 291, 396, 501, 403, 609, 712, 729, 942, 1044, 1247));
 
         // Add it all together
         VerticalLayout viewEvents = new VerticalLayout(header, chart);
@@ -122,67 +123,6 @@ public class DashboardView extends Main {
         return viewEvents;
     }
 
-    private Component createServiceHealth() {
-        // Header
-        HorizontalLayout header = createHeader("Service health", "Input / output");
-
-        // Grid
-        Grid<ServiceHealth> grid = new Grid();
-        grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
-        grid.setAllRowsVisible(true);
-
-        grid.addColumn(new ComponentRenderer<>(serviceHealth -> {
-            Span status = new Span();
-            String statusText = getStatusDisplayName(serviceHealth);
-            status.getElement().setAttribute("aria-label", "Status: " + statusText);
-            status.getElement().setAttribute("title", "Status: " + statusText);
-            status.getElement().getThemeList().add(getStatusTheme(serviceHealth));
-            return status;
-        })).setHeader("").setFlexGrow(0).setAutoWidth(true);
-        grid.addColumn(ServiceHealth::getCity).setHeader("City").setFlexGrow(1);
-        grid.addColumn(ServiceHealth::getInput).setHeader("Input").setAutoWidth(true).setTextAlign(ColumnTextAlign.END);
-        grid.addColumn(ServiceHealth::getOutput).setHeader("Output").setAutoWidth(true)
-                .setTextAlign(ColumnTextAlign.END);
-
-        grid.setItems(new ServiceHealth(Status.EXCELLENT, "Münster", 324, 1540),
-                new ServiceHealth(Status.OK, "Cluj-Napoca", 311, 1320),
-                new ServiceHealth(Status.FAILING, "Ciudad Victoria", 300, 1219));
-
-        // Add it all together
-        VerticalLayout serviceHealth = new VerticalLayout(header, grid);
-        serviceHealth.addClassName(Padding.LARGE);
-        serviceHealth.setPadding(false);
-        serviceHealth.setSpacing(false);
-        serviceHealth.getElement().getThemeList().add("spacing-l");
-        return serviceHealth;
-    }
-
-    private Component createResponseTimes() {
-        HorizontalLayout header = createHeader("Response times", "Average across all systems");
-
-        // Chart
-        Chart chart = new Chart(ChartType.PIE);
-        Configuration conf = chart.getConfiguration();
-        conf.getChart().setStyledMode(true);
-        chart.setThemeName("gradient");
-
-        DataSeries series = new DataSeries();
-        series.add(new DataSeriesItem("System 1", 12.5));
-        series.add(new DataSeriesItem("System 2", 12.5));
-        series.add(new DataSeriesItem("System 3", 12.5));
-        series.add(new DataSeriesItem("System 4", 12.5));
-        series.add(new DataSeriesItem("System 5", 12.5));
-        series.add(new DataSeriesItem("System 6", 12.5));
-        conf.addSeries(series);
-
-        // Add it all together
-        VerticalLayout serviceHealth = new VerticalLayout(header, chart);
-        serviceHealth.addClassName(Padding.LARGE);
-        serviceHealth.setPadding(false);
-        serviceHealth.setSpacing(false);
-        serviceHealth.getElement().getThemeList().add("spacing-l");
-        return serviceHealth;
-    }
 
     private HorizontalLayout createHeader(String title, String subtitle) {
         H2 h2 = new H2(title);

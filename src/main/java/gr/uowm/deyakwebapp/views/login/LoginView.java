@@ -12,7 +12,7 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 import gr.uowm.deyakwebapp.security.AuthenticatedUser;
 
 @AnonymousAllowed
-@PageTitle("Login")
+@PageTitle("Σύνδεση")
 @Route(value = "login")
 public class LoginView extends LoginOverlay implements BeforeEnterObserver {
 
@@ -24,9 +24,16 @@ public class LoginView extends LoginOverlay implements BeforeEnterObserver {
 
         LoginI18n i18n = LoginI18n.createDefault();
         i18n.setHeader(new LoginI18n.Header());
-        i18n.getHeader().setTitle("Deyak Web App");
-        i18n.getHeader().setDescription("Login using user/user or admin/admin");
+        i18n.getHeader().setTitle("Δ.Ε.Υ.Α. Κοζάνης HeatTrack");
+        i18n.getHeader().setDescription("Παρακολούθηση συστήματος τηλεθέρμανσης");
         i18n.setAdditionalInformation(null);
+        i18n.setForm(new LoginI18n.Form());
+        i18n.getForm().setTitle("Σύνδεση");
+        i18n.getForm().setUsername("Όνομα χρήστη");
+        i18n.getForm().setPassword("Κωδικός πρόσβασης");
+        i18n.getForm().setSubmit("Σύνδεση");
+        i18n.getForm().setForgotPassword("Ξεχάσατε τον κωδικό;");
+
         setI18n(i18n);
 
         setForgotPasswordButtonVisible(false);

@@ -5,6 +5,7 @@ import com.vaadin.flow.theme.Theme;
 import gr.uowm.deyakwebapp.data.service.UserRepository;
 import javax.sql.DataSource;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.sql.init.SqlDataSourceScriptDatabaseInitializer;
 import org.springframework.boot.autoconfigure.sql.init.SqlInitializationProperties;
