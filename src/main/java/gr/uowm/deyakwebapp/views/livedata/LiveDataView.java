@@ -1,6 +1,10 @@
 package gr.uowm.deyakwebapp.views.livedata;
 
+import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.HasValue;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.server.Command;
 import gr.uowm.deyakwebapp.data.entity.Data;
 import gr.uowm.deyakwebapp.data.service.DataService;
 import gr.uowm.deyakwebapp.views.MainLayout;
@@ -18,6 +22,9 @@ import com.vaadin.flow.theme.lumo.LumoUtility.Gap;
 import jakarta.annotation.security.PermitAll;
 
 import java.util.Optional;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 @PageTitle("Live Data")
 @Route(value = "live-data", layout = MainLayout.class)
@@ -72,6 +79,9 @@ public class LiveDataView extends Composite<VerticalLayout> {
     private HorizontalLayout layoutRow4 = new HorizontalLayout();
     private DataService dataService;
 
+    private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+
+
     public LiveDataView(DataService dataService) {
         this.dataService = dataService;
         getContent().setHeightFull();
@@ -83,7 +93,7 @@ public class LiveDataView extends Composite<VerticalLayout> {
         select.addValueChangeListener(event -> {
             String selectedCustomerNumber = String.valueOf(event.getValue());
             int customerNumber = Integer.parseInt(selectedCustomerNumber);
-            updateDataForCustomer(customerNumber);
+            updateDataForCustomer();
         });
         layoutRow2.setWidthFull();
         getContent().setFlexGrow(1.0, layoutRow2);
@@ -145,26 +155,46 @@ public class LiveDataView extends Composite<VerticalLayout> {
         layoutColumn7.add(h36);
         layoutColumn7.add(h46);
         getContent().add(layoutRow4);
+        executorService.scheduleAtFixedRate(this::updateDataForCustomer, 0, 10, TimeUnit.SECONDS);
+
+    }
+    private void updateUI(Command runnable) {
+        getUI().ifPresent(ui -> ui.access(runnable));
     }
 
-    private void updateDataForCustomer(int customerNo) {
-        Optional<Data> lastData = dataService.getLastDataForCustomer(customerNo);
-        if (lastData.isPresent()) {
-            Data data = lastData.get();
-            h4.setText(String.valueOf(data.getE1()));
-            h42.setText(String.valueOf(data.getV1()));
-            h43.setText(String.valueOf(data.getT1()));
-            h44.setText(String.valueOf(data.getT2()));
-            h45.setText(String.valueOf(data.getInfoCode()));
-            h46.setText(String.valueOf(data.getOperatingHours()));
-        } else {
-            h4.setText("N/A");
-            h42.setText("N/A");
-            h43.setText("N/A");
-            h44.setText("N/A");
-            h45.setText("N/A");
-            h46.setText("N/A");
+    private void updateDataForCustomer() {
+        Integer selectedCustomerNumber = (Integer) select.getValue();
+        if (selectedCustomerNumber != null) {
+            Optional<Data> lastData = dataService.getLastDataForCustomer(selectedCustomerNumber);
+            if (lastData.isPresent()) {
+                Data data = lastData.get();
+                UI.getCurrent().access(() -> {
+                    Notification.show("Data updated for customer " + selectedCustomerNumber);
+                    h4.setText(String.valueOf(data.getE1()));
+                    h42.setText(String.valueOf(data.getV1()));
+                    h43.setText(String.valueOf(data.getT1()));
+                    h44.setText(String.valueOf(data.getT2()));
+                    h45.setText(String.valueOf(data.getInfoCode()));
+                    h46.setText(String.valueOf(data.getOperatingHours()));
+                });
+            } else {
+                UI.getCurrent().access(() -> {
+                    h4.setText("N/A");
+                    h42.setText("N/A");
+                    h43.setText("N/A");
+                    h44.setText("N/A");
+                    h45.setText("N/A");
+                    h46.setText("N/A");
+                });
+            }
         }
+    }
+
+    @Override
+    protected void onDetach(DetachEvent detachEvent) {
+        super.onDetach(detachEvent);
+        // Shutdown the executor service when the view is detached
+        executorService.shutdown();
     }
 
 
