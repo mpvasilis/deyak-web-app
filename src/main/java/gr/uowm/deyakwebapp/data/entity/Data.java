@@ -103,4 +103,15 @@ public class Data {
     public String getClient() {
         return String.valueOf(customerNo);
     }
+
+    public Data(int customerNo, float e1, float v1, float t1, float t2, int infoCode, int operatingHours) {
+        this.customerNo = customerNo;
+        this.e1 = e1;
+        this.v1 = v1;
+        this.t1 = t1;
+        this.t2 = t2;
+        this.infoCode = infoCode;
+        this.operatingHours = operatingHours;
+        this.date = new Date();
+    }
 }

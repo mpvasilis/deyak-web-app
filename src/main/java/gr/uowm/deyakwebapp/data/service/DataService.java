@@ -96,4 +96,7 @@ public class DataService {
     public List<Data> getAll() {
         return repository.findAll();
     }
+    public void saveData(Data dataEntity) {
+        repository.save(dataEntity);
+    }
 }

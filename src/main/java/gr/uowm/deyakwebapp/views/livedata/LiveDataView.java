@@ -1,10 +1,8 @@
 package gr.uowm.deyakwebapp.views.livedata;
 
-import com.vaadin.flow.component.DetachEvent;
-import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.server.Command;
+import com.vaadin.flow.component.page.Page;
 import gr.uowm.deyakwebapp.data.entity.Data;
 import gr.uowm.deyakwebapp.data.service.DataService;
 import gr.uowm.deyakwebapp.views.MainLayout;
@@ -22,9 +20,7 @@ import com.vaadin.flow.theme.lumo.LumoUtility.Gap;
 import jakarta.annotation.security.PermitAll;
 
 import java.util.Optional;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @PageTitle("Live Data")
 @Route(value = "live-data", layout = MainLayout.class)
@@ -154,10 +150,16 @@ public class LiveDataView extends Composite<VerticalLayout> {
         layoutColumn7.add(h46);
         getContent().add(layoutRow4);
         UI ui = UI.getCurrent();
+        Page page = ui.getPage();
         ui.setPollInterval(10000);
+        AtomicBoolean uiActive = new AtomicBoolean(true);
         ui.addPollListener(e -> {
-            updateDataForCustomer();
+            if (uiActive.get()) {
+                updateDataForCustomer();
+            }
         });
+
+        ui.addBeforeLeaveListener(e -> uiActive.set(false));
 
     }
 
@@ -169,10 +171,10 @@ public class LiveDataView extends Composite<VerticalLayout> {
                 Data data = lastData.get();
                 UI.getCurrent().accessSynchronously(() -> {
                     Notification.show("Data updated for customer " + selectedCustomerNumber, 1000, Notification.Position.TOP_CENTER);
-                    h4.setText(String.valueOf(data.getE1()));
-                    h42.setText(String.valueOf(data.getV1()));
-                    h43.setText(String.valueOf(data.getT1()));
-                    h44.setText(String.valueOf(data.getT2()));
+                    h4.setText(String.valueOf(data.getE1())+ " kWh");
+                    h42.setText(String.valueOf(data.getV1())+ " m3");
+                    h43.setText(String.valueOf(data.getT1())+ " °C");
+                    h44.setText(String.valueOf(data.getT2())+ " °C");
                     h45.setText(String.valueOf(data.getInfoCode()));
                     h46.setText(String.valueOf(data.getOperatingHours()));
                 });
