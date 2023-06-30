@@ -44,8 +44,8 @@ public class ArudinoDataController {
         double t2 = decode(reg7, reg8);
         double v1 = decode(reg51, reg52);
         double customerNo = decodeInt(reg143, reg144);
-        double infoCode = decode(reg123, reg124);
-        double operatingHours = decode(reg125, reg126);
+        double infoCode = decodeInt(reg123, reg124);
+        double operatingHours = decodeInt(reg125, reg126);
 
         Data dataEntity = new Data((int) customerNo, (float) e1, (float) v1, (float) t1, (float) t2, (int) infoCode, (int) operatingHours);
         dataService.saveData(dataEntity);
