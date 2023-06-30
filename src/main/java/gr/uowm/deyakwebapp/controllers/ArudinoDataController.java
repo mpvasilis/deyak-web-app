@@ -23,20 +23,29 @@ public class ArudinoDataController {
 
     @GetMapping("/registers")
     @PermitAll
-    public String saveRegisters(@RequestParam Map<String, Integer> registers
-    ) {
-        for (Map.Entry<String, Integer> entry : registers.entrySet()) {
-            String registerName = entry.getKey();
-            int registerValue = entry.getValue();
-        }
+    public String saveRegisters( @RequestParam("reg5") int reg5,
+                                    @RequestParam("reg6") int reg6,
+                                    @RequestParam("reg7") int reg7,
+                                    @RequestParam("reg8") int reg8,
+                                    @RequestParam("reg19") int reg19,
+                                    @RequestParam("reg20") int reg20,
+                                    @RequestParam("reg51") int reg51,
+                                    @RequestParam("reg52") int reg52,
+                                    @RequestParam("reg123") int reg123,
+                                    @RequestParam("reg124") int reg124,
+                                    @RequestParam("reg125") int reg125,
+                                    @RequestParam("reg126") int reg126,
+                                    @RequestParam("reg143") int reg143,
+                                    @RequestParam("reg144") int reg144
 
-        double e1 = decode(registers.get("19"), registers.get("20"));
-        double t1 = decode(registers.get("5"), registers.get("6"));
-        double t2 = decode(registers.get("7"), registers.get("8"));
-        double v1 = decode(registers.get("51"), registers.get("52"));
-        double customerNo = decodeInt(registers.get("143"), registers.get("144"));
-        double infoCode = decode(registers.get("123"), registers.get("124"));
-        double operatingHours = decode(registers.get("125"), registers.get("126"));
+    ) {
+        double e1 = decode(reg19, reg20);
+        double t1 = decode(reg5, reg6);
+        double t2 = decode(reg7, reg8);
+        double v1 = decode(reg51, reg52);
+        double customerNo = decodeInt(reg143, reg144);
+        double infoCode = decode(reg123, reg124);
+        double operatingHours = decode(reg125, reg126);
 
         Data dataEntity = new Data((int) customerNo, (float) e1, (float) v1, (float) t1, (float) t2, (int) infoCode, (int) operatingHours);
         dataService.saveData(dataEntity);
