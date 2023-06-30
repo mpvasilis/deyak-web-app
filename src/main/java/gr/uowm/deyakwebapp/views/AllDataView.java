@@ -61,7 +61,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
 @PageTitle("Αναλυτικά Δεδομένα")
-@Route(value = "allData", layout = MainLayout.class)
+@Route(value = "", layout = MainLayout.class)
 @PermitAll
 @Uses(Icon.class)
 public class AllDataView extends Div {

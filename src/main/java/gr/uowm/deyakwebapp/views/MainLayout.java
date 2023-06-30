@@ -27,7 +27,6 @@ import com.vaadin.flow.theme.lumo.LumoUtility.Whitespace;
 import com.vaadin.flow.theme.lumo.LumoUtility.Width;
 import gr.uowm.deyakwebapp.data.entity.User;
 import gr.uowm.deyakwebapp.security.AuthenticatedUser;
-import gr.uowm.deyakwebapp.views.dashboard.DashboardView;
 import java.io.ByteArrayInputStream;
 import java.util.Optional;
 
@@ -152,7 +151,6 @@ public class MainLayout extends AppLayout {
 
     private MenuItemInfo[] createMenuItems() {
         return new MenuItemInfo[]{ //
-                new MenuItemInfo("Πίνακας Ελέγχου", LineAwesomeIcon.CHART_AREA_SOLID.create(), DashboardView.class), //
                 new MenuItemInfo("Αναλυτικά Δεδομένα", LineAwesomeIcon.TH_SOLID.create(), AllDataView.class), //
                 new MenuItemInfo("Live Δεδομένα", LineAwesomeIcon.TH_SOLID.create(), LiveDataView.class), //
         };
