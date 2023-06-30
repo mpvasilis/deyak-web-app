@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
@@ -85,9 +86,14 @@ public class DataService {
     public List<Data> getFilteredData(Specification<Data> filters) {
         return repository.findAll(filters);
     }
-
+    public Optional<Data> getLastDataForCustomer(int customerNo) {
+        return repository.findFirstByCustomerNoOrderByDateDesc(customerNo);
+    }
     public int count() {
         return (int) repository.count();
     }
 
+    public List<Data> getAll() {
+        return repository.findAll();
+    }
 }

@@ -4,14 +4,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.contextmenu.MenuItem;
-import com.vaadin.flow.component.html.Anchor;
-import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.html.Header;
-import com.vaadin.flow.component.html.ListItem;
-import com.vaadin.flow.component.html.Nav;
-import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.html.UnorderedList;
+import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.router.RouterLink;
@@ -37,6 +30,8 @@ import gr.uowm.deyakwebapp.security.AuthenticatedUser;
 import gr.uowm.deyakwebapp.views.dashboard.DashboardView;
 import java.io.ByteArrayInputStream;
 import java.util.Optional;
+
+import gr.uowm.deyakwebapp.views.livedata.LiveDataView;
 import org.vaadin.lineawesome.LineAwesomeIcon;
 
 /**
@@ -83,7 +78,7 @@ public class MainLayout extends AppLayout {
         this.authenticatedUser = authenticatedUser;
         this.accessChecker = accessChecker;
 
-        addToNavbar(createHeaderContent());
+        addToNavbar(createHeaderContent(), createFooter());
     }
 
     private Component createHeaderContent() {
@@ -120,13 +115,13 @@ public class MainLayout extends AppLayout {
             div.getElement().getStyle().set("align-items", "center");
             div.getElement().getStyle().set("gap", "var(--lumo-space-s)");
             userName.add(div);
-            userName.getSubMenu().addItem("Sign out", e -> {
+            userName.getSubMenu().addItem("Αποσύνδεση", e -> {
                 authenticatedUser.logout();
             });
 
             layout.add(userMenu);
         } else {
-            Anchor loginLink = new Anchor("login", "Sign in");
+            Anchor loginLink = new Anchor("login", "Σύνδεση");
             layout.add(loginLink);
         }
 
@@ -149,12 +144,17 @@ public class MainLayout extends AppLayout {
         return header;
     }
 
+    private Footer createFooter() {
+        Footer layout = new Footer();
+
+        return layout;
+    }
+
     private MenuItemInfo[] createMenuItems() {
         return new MenuItemInfo[]{ //
                 new MenuItemInfo("Πίνακας Ελέγχου", LineAwesomeIcon.CHART_AREA_SOLID.create(), DashboardView.class), //
-
                 new MenuItemInfo("Αναλυτικά Δεδομένα", LineAwesomeIcon.TH_SOLID.create(), AllDataView.class), //
-
+                new MenuItemInfo("Live Δεδομένα", LineAwesomeIcon.TH_SOLID.create(), LiveDataView.class), //
         };
     }
 

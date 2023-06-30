@@ -1,5 +1,6 @@
 @import url('./main-layout.css');
 @import url('./views/dashboard-view.css');
+@import url('./views/live-data-view.css');
 @import url('./views/all-data-view.css');    html {
       --lumo-border-radius-s: 1px;
       --lumo-border-radius-m: 2px;

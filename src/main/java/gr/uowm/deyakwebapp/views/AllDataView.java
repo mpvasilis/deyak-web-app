@@ -26,6 +26,7 @@ import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.InputStreamFactory;
 import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.VaadinServletResponse;
@@ -42,15 +43,21 @@ import jakarta.persistence.criteria.Root;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
 @PageTitle("Αναλυτικά Δεδομένα")
@@ -301,6 +308,7 @@ public class AllDataView extends Div {
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
         grid.addClassNames(LumoUtility.Border.TOP, LumoUtility.BorderColor.CONTRAST_10);
 
+
         VerticalLayout layout = new VerticalLayout(chart, grid);
         layout.setSizeFull();
         layout.setPadding(false);
@@ -314,45 +322,22 @@ public class AllDataView extends Div {
     }
 
     private void exportFilteredDataToCSV() {
-        List<Data> filteredData = dataService.getFilteredData(filters);
-
-        // Generate the CSV content
-        String csvContent = generateCSVContent(filteredData);
-
-        // Create a byte array with the CSV content
-        byte[] csvBytes = csvContent.getBytes(StandardCharsets.UTF_8);
-
-        // Set the response headers
-        VaadinServletResponse response = (VaadinServletResponse) VaadinService.getCurrentResponse();
-        response.setContentType("text/csv");
-        response.setHeader("Content-Disposition", "attachment; filename=filtered_data.csv");
-
-        try {
-            // Write the CSV content to the response output stream
-            ServletOutputStream outputStream = response.getOutputStream();
-            outputStream.write(csvBytes);
-            outputStream.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
+        Map<String, String> filtersMap = new HashMap<>();
+        if (filters.customerNoSelect.getValue() != null) {
+            filtersMap.put("customerNo", String.valueOf(filters.customerNoSelect.getValue()));
         }
-    }
-
-    private String generateCSVContent(List<Data> filteredData) {
-        StringBuilder csvContent = new StringBuilder();
-
-        // Add the CSV headers
-        csvContent.append("CustomerNo,E1,V1,t1,t2\n");
-
-        // Add the data rows
-        for (Data data : filteredData) {
-            csvContent.append(data.getCustomerNo()).append(",")
-                    .append(data.getE1()).append(",")
-                    .append(data.getV1()).append(",")
-                    .append(data.getT1()).append(",")
-                    .append(data.getT2()).append("\n");
+        if (filters.startDate.getValue() != null) {
+            filtersMap.put("startDate", filters.startDate.getValue().toString());
         }
+        if (filters.endDate.getValue() != null) {
+            filtersMap.put("endDate", filters.endDate.getValue().toString());
+        }
+        String filterParams = filtersMap.entrySet().stream()
+                .map(entry -> entry.getKey() + "=" + URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8))
+                .collect(Collectors.joining("&"));
+        Notification.show("Εξαγωγή δεδομένων σε CSV...", 3000, Notification.Position.TOP_END);
 
-        return csvContent.toString();
-    }
+        // Open a new tab with the URL including filter parameters
+        UI.getCurrent().getPage().executeJs("window.open('/export-csv?" + filterParams + "', '_blank')");    }
 
 }
