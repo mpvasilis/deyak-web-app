@@ -73,7 +73,15 @@ public class AllDataView extends Div {
     private final CSVExporter csvExporter;
 
     private Chart chart = new Chart(ChartType.LINE);
+    private Chart secondChart = new Chart(ChartType.LINE);
+
+    private Chart temperatureChart1 = new Chart(ChartType.LINE);
+    private Chart temperatureChart2 = new Chart(ChartType.LINE);
     private Configuration configuration = chart.getConfiguration();
+    private Configuration secondChartConfiguration = secondChart.getConfiguration();
+
+    private Configuration temperatureChart1Configuration = temperatureChart1.getConfiguration();
+    private Configuration temperatureChart2Configuration = temperatureChart2.getConfiguration();
 
     public AllDataView(DataService dataService, CSVExporter csvExporter) {
         this.dataService = dataService;
@@ -88,6 +96,9 @@ public class AllDataView extends Div {
         exportBtn.getStyle().set("padding-right", "30px");
         exportBtn.addClassName("float-right");
         reloadChart();
+        reloadChart2();
+        reloadChart3();
+        reloadChart4();
         VerticalLayout layout = new VerticalLayout(createMobileFilters(), filters, exportBtn,createGrid());
         layout.setSizeFull();
         layout.setPadding(false);
@@ -96,7 +107,11 @@ public class AllDataView extends Div {
     }
     private void onSearch() {
         reloadChart();
+        reloadChart2();
+        reloadChart3();
+        reloadChart4();
         refreshGrid();
+
 
     }
     private  void reloadChart() {
@@ -104,7 +119,7 @@ public class AllDataView extends Div {
         chart.getConfiguration().setSeries(new ArrayList<>());
 
         configuration = chart.getConfiguration();
-        configuration.setTitle("Γράφημα Δεδομένων");
+        configuration.setTitle("Θερμική ενέργεια (E1)");
 
         XAxis xAxis = configuration.getxAxis();
         xAxis.setTitle("Ημερομηνία");
@@ -120,6 +135,105 @@ public class AllDataView extends Div {
 
         chart.drawChart();
     }
+
+    private  void reloadChart2() {
+        secondChart.drawChart(true);
+        secondChart.getConfiguration().setSeries(new ArrayList<>());
+
+        secondChartConfiguration = secondChart.getConfiguration();
+        secondChartConfiguration.setTitle("Παροχή (V1)");
+        XAxis secondChartXAxis = secondChartConfiguration.getxAxis();
+        secondChartXAxis.setTitle("Ημερομηνία");
+        secondChartXAxis.setType(AxisType.DATETIME);
+        YAxis secondChartYAxis = secondChartConfiguration.getyAxis();
+        secondChartYAxis.setTitle("m³");
+
+        // Group data by customer number
+        Map<Integer, List<Data>> dataByCustomer = groupDataByCustomer(dataService.getFilteredData(filters));
+
+        // Add a data series for each customer number to the second chart
+        for (Map.Entry<Integer, List<Data>> entry : dataByCustomer.entrySet()) {
+            int customerNo = entry.getKey();
+            List<Data> customerData = entry.getValue();
+
+            ListDataProvider<Data> dataProvider = new ListDataProvider<>(customerData);
+            DataProviderSeries<Data> series = new DataProviderSeries<>(dataProvider, Data::getV1);
+            series.setX(Data::getDate);
+            series.setY(Data::getV1);
+            series.setName("Μετρητής " + customerNo);
+
+            secondChartConfiguration.addSeries(series);
+        }
+
+        secondChart.drawChart();
+    }
+
+    private  void reloadChart3() {
+        temperatureChart1.drawChart(true);
+        temperatureChart1.getConfiguration().setSeries(new ArrayList<>());
+
+        temperatureChart1Configuration = temperatureChart1.getConfiguration();
+        temperatureChart1Configuration.setTitle("Γράφημα Θερμοκρασίας 1");
+        XAxis secondChartXAxis = temperatureChart1Configuration.getxAxis();
+        secondChartXAxis.setTitle("Ημερομηνία");
+        secondChartXAxis.setType(AxisType.DATETIME);
+        YAxis secondChartYAxis = temperatureChart1Configuration.getyAxis();
+        secondChartYAxis.setTitle("Θερμοκρασία (°C)");
+
+
+        // Group data by customer number
+        Map<Integer, List<Data>> dataByCustomer = groupDataByCustomer(dataService.getFilteredData(filters));
+
+        // Add a data series for each customer number to the second chart
+        for (Map.Entry<Integer, List<Data>> entry : dataByCustomer.entrySet()) {
+            int customerNo = entry.getKey();
+            List<Data> customerData = entry.getValue();
+
+            ListDataProvider<Data> dataProvider = new ListDataProvider<>(customerData);
+            DataProviderSeries<Data> series = new DataProviderSeries<>(dataProvider, Data::getT1);
+            series.setX(Data::getDate);
+            series.setY(Data::getT1);
+            series.setName("Μετρητής " + customerNo);
+
+            temperatureChart1Configuration.addSeries(series);
+        }
+
+        temperatureChart1.drawChart();
+    }
+
+    private  void reloadChart4() {
+        temperatureChart2.drawChart(true);
+        temperatureChart2.getConfiguration().setSeries(new ArrayList<>());
+
+        temperatureChart2Configuration = temperatureChart2.getConfiguration();
+        temperatureChart2Configuration.setTitle("Γράφημα Θερμοκρασίας 2");
+        XAxis secondChartXAxis = temperatureChart2Configuration.getxAxis();
+        secondChartXAxis.setTitle("Ημερομηνία");
+        secondChartXAxis.setType(AxisType.DATETIME);
+        YAxis secondChartYAxis = temperatureChart2Configuration.getyAxis();
+        secondChartYAxis.setTitle("Θερμοκρασία (°C)");
+
+
+        // Group data by customer number
+        Map<Integer, List<Data>> dataByCustomer = groupDataByCustomer(dataService.getFilteredData(filters));
+
+        // Add a data series for each customer number to the second chart
+        for (Map.Entry<Integer, List<Data>> entry : dataByCustomer.entrySet()) {
+            int customerNo = entry.getKey();
+            List<Data> customerData = entry.getValue();
+
+            ListDataProvider<Data> dataProvider = new ListDataProvider<>(customerData);
+            DataProviderSeries<Data> series = new DataProviderSeries<>(dataProvider, Data::getT2);
+            series.setX(Data::getDate);
+            series.setY(Data::getT2);
+            series.setName("Μετρητής " + customerNo);
+
+            temperatureChart2Configuration.addSeries(series);
+        }
+
+        temperatureChart2.drawChart();
+    }
+
 
     private Map<Integer, List<Data>> groupDataByCustomer(List<Data> filteredData) {
         // Group data by customer number
@@ -213,8 +327,6 @@ public class AllDataView extends Div {
                 roles.clear();
                 onSearch.run();
                 customerNoSelect.clear();
-
-
             });
             Button searchBtn = new Button("Φιλτράρισμα", new Icon("lumo", "search"));
             searchBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
@@ -308,8 +420,18 @@ public class AllDataView extends Div {
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
         grid.addClassNames(LumoUtility.Border.TOP, LumoUtility.BorderColor.CONTRAST_10);
 
+        HorizontalLayout chartsLayout = new HorizontalLayout(chart, secondChart);
+        chartsLayout.setSizeFull();
+        chartsLayout.setPadding(false);
+        chartsLayout.setSpacing(false);
 
-        VerticalLayout layout = new VerticalLayout(chart, grid);
+        HorizontalLayout temperatureChartsLayout = new HorizontalLayout(temperatureChart1, temperatureChart2);
+        temperatureChartsLayout.setSizeFull();
+        temperatureChartsLayout.setPadding(false);
+        temperatureChartsLayout.setSpacing(false);
+
+        // Create a vertical layout to hold the charts and the grid
+        VerticalLayout layout = new VerticalLayout(chartsLayout, temperatureChartsLayout, grid);
         layout.setSizeFull();
         layout.setPadding(false);
         layout.setSpacing(false);
