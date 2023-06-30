@@ -79,8 +79,6 @@ public class LiveDataView extends Composite<VerticalLayout> {
     private HorizontalLayout layoutRow4 = new HorizontalLayout();
     private DataService dataService;
 
-    private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-
 
     public LiveDataView(DataService dataService) {
         this.dataService = dataService;
@@ -155,11 +153,12 @@ public class LiveDataView extends Composite<VerticalLayout> {
         layoutColumn7.add(h36);
         layoutColumn7.add(h46);
         getContent().add(layoutRow4);
-        executorService.scheduleAtFixedRate(this::updateDataForCustomer, 0, 10, TimeUnit.SECONDS);
+        UI ui = UI.getCurrent();
+        ui.setPollInterval(10000);
+        ui.addPollListener(e -> {
+            updateDataForCustomer();
+        });
 
-    }
-    private void updateUI(Command runnable) {
-        getUI().ifPresent(ui -> ui.access(runnable));
     }
 
     private void updateDataForCustomer() {
@@ -168,8 +167,8 @@ public class LiveDataView extends Composite<VerticalLayout> {
             Optional<Data> lastData = dataService.getLastDataForCustomer(selectedCustomerNumber);
             if (lastData.isPresent()) {
                 Data data = lastData.get();
-                UI.getCurrent().access(() -> {
-                    Notification.show("Data updated for customer " + selectedCustomerNumber);
+                UI.getCurrent().accessSynchronously(() -> {
+                    Notification.show("Data updated for customer " + selectedCustomerNumber, 1000, Notification.Position.TOP_CENTER);
                     h4.setText(String.valueOf(data.getE1()));
                     h42.setText(String.valueOf(data.getV1()));
                     h43.setText(String.valueOf(data.getT1()));
@@ -178,7 +177,7 @@ public class LiveDataView extends Composite<VerticalLayout> {
                     h46.setText(String.valueOf(data.getOperatingHours()));
                 });
             } else {
-                UI.getCurrent().access(() -> {
+                UI.getCurrent().accessSynchronously(() -> {
                     h4.setText("N/A");
                     h42.setText("N/A");
                     h43.setText("N/A");
@@ -188,13 +187,6 @@ public class LiveDataView extends Composite<VerticalLayout> {
                 });
             }
         }
-    }
-
-    @Override
-    protected void onDetach(DetachEvent detachEvent) {
-        super.onDetach(detachEvent);
-        // Shutdown the executor service when the view is detached
-        executorService.shutdown();
     }
 
 
