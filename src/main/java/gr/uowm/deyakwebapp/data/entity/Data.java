@@ -103,6 +103,8 @@ public class Data {
     public String getClient() {
         return String.valueOf(customerNo);
     }
+    public Data() {
+    }
 
     public Data(int customerNo, float e1, float v1, float t1, float t2, int infoCode, int operatingHours) {
         this.customerNo = customerNo;
