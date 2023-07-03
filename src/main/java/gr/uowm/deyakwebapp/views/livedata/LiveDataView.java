@@ -170,7 +170,6 @@ public class LiveDataView extends Composite<VerticalLayout> {
             if (lastData.isPresent()) {
                 Data data = lastData.get();
                 UI.getCurrent().accessSynchronously(() -> {
-                    Notification.show("Data updated for customer " + selectedCustomerNumber, 1000, Notification.Position.TOP_CENTER);
                     h4.setText(String.valueOf(data.getE1())+ " kWh");
                     h42.setText(String.valueOf(data.getV1())+ " m3");
                     h43.setText(String.valueOf(data.getT1())+ " °C");

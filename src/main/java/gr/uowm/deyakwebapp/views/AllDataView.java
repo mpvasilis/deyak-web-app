@@ -111,9 +111,37 @@ public class AllDataView extends Div {
         reloadChart3();
         reloadChart4();
         refreshGrid();
-
+        updateUrlWithFilters();
 
     }
+
+    private void updateUrlWithFilters() {
+        Map<String, String> filtersMap = new HashMap<>();
+        if (filters.customerNoSelect.getValue() != null) {
+            filtersMap.put("customerNo", String.valueOf(filters.customerNoSelect.getValue()));
+        }
+        if (filters.startDate.getValue() != null) {
+            filtersMap.put("startDate", filters.startDate.getValue().toString());
+        }
+        if (filters.endDate.getValue() != null) {
+            filtersMap.put("endDate", filters.endDate.getValue().toString());
+        }
+        String filterParams = filtersMap.entrySet().stream()
+                .map(entry -> entry.getKey() + "=" + URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8))
+                .collect(Collectors.joining("&"));
+
+        // Get the current URL
+        String currentUrl = VaadinService.getCurrentRequest().getPathInfo();
+
+        // Update the URL with the filter parameters
+        String newUrl = currentUrl + "?" + filterParams;
+
+        // Update the browser's URL
+        UI.getCurrent().getPage().setLocation(newUrl);
+    }
+
+
+
     private  void reloadChart() {
         chart.drawChart(true);
         chart.getConfiguration().setSeries(new ArrayList<>());
@@ -438,6 +466,7 @@ public class AllDataView extends Div {
 
         return layout;
     }
+
 
     private void refreshGrid() {
         grid.getDataProvider().refreshAll();
